@@ -7,6 +7,9 @@ use App\Models\MenuRole;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
+use Exception;
+use JWTAuth;
+
 class Helper
 {
   /**
@@ -24,6 +27,17 @@ class Helper
       return 'Selamat Siang';
     }
     return 'Selamat Malam';
+  }
+
+  public static function GenerateReportNumber($length = 20)
+  {
+    $characters = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $charactersLength = strlen($characters);
+    $randomString = '';
+    for ($i = 0; $i < $length; $i++) {
+      $randomString .= $characters[rand(0, $charactersLength - 1)];
+    }
+    return $randomString;
   }
 
   public static function menu()

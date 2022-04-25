@@ -5,6 +5,48 @@
             <span class="nav-link-text">Dashboard</span>
         </a>
     </li>
+    <li>
+        <a href="{{route('customer.index')}}" title="Customer" data-filter-tags="customer">
+            <i class="fal fa-user"></i>
+            <span class="nav-link-text">Customer</span>
+        </a>
+    </li>
+    <li>
+        <a href="{{route('bank.index')}}" title="Bank" data-filter-tags="bank">
+            <i class="fal fa-bank"></i>
+            <span class="nav-link-text">Bank</span>
+        </a>
+    </li>
+    <li>
+        <a href="{{route('kas.index')}}" title="Kas" data-filter-tags="kas">
+            <i class="fal fa-user"></i>
+            <span class="nav-link-text">Kas</span>
+        </a>
+    </li>
+    <li>
+        <a href="{{route('transaksi.index')}}" title="Transaksi" data-filter-tags="transaksi">
+            <i class="fal fa-user"></i>
+            <span class="nav-link-text">Transaksi</span>
+        </a>
+    </li>
+    <li>
+        <a href="{{route('tariktunai.index')}}" title="TarikTunai" data-filter-tags="tariktunai">
+            <i class="fal fa-user"></i>
+            <span class="nav-link-text">Tarik Tunai</span>
+        </a>
+    </li>
+    <li>
+        <a href="{{route('payment.index')}}" title="Payment" data-filter-tags="payment">
+            <i class="fal fa-user"></i>
+            <span class="nav-link-text">Payment</span>
+        </a>
+    </li>
+    <li>
+        <a href="{{route('ewallet.index')}}" title="E-Wallet" data-filter-tags="ewallet">
+            <i class="fal fa-user"></i>
+            <span class="nav-link-text">E-Wallet</span>
+        </a>
+    </li>
     @isset($menu)
     @foreach ($menu as $parent_menu)
     <li class="">

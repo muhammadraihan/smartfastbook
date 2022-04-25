@@ -39,4 +39,13 @@ Route::group(['prefix' => 'backoffice', 'middleware' => ['auth']], function () {
     Route::resource('users', 'UserController');
     Route::resource('permissions', 'PermissionController');
     Route::resource('roles', 'RoleController');
+    Route::resource('customer', 'CustomerController');
+    Route::resource('bank', 'BankController');
+    Route::resource('kas', 'KasController');
+    Route::resource('transaksi', 'TransaksiController');
+    Route::resource('tariktunai', 'TarikTunaiController');
+    Route::resource('payment', 'PaymentController');
+    Route::resource('ewallet', 'EWalletController');
+    Route::get('getPayment', 'EWalletController@GetPayment')->name('getPayment');
+    Route::POST('search', 'KasController@cekrekening')->name('get.cekrekening');
 });
