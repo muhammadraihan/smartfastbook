@@ -49,7 +49,7 @@ class TransaksiController extends Controller
                     return $row->admin_bank ? 'Rp.'.' '.number_format($row->admin_bank,2) : '';
                 })
                 ->editColumn('created_at',function($row){
-                    return Carbon::parse($row->created_at)->format('j F Y');
+                    return Carbon::parse($row->created_at)->format('d M Y');
                 })
                 ->editColumn('bank_uuid', function($row){
                     return $row->kas->bank_uuid;
@@ -83,7 +83,7 @@ class TransaksiController extends Controller
                     return $row->admin_bank ? 'Rp.'.' '.number_format($row->admin_bank,2) : '';
                 })
                 ->editColumn('created_at',function($row){
-                    return Carbon::parse($row->created_at)->format('j F Y');
+                    return Carbon::parse($row->created_at)->format('d M Y');
                 })
                 ->editColumn('bank_uuid', function($row){
                     return $row->kas->bank_uuid;

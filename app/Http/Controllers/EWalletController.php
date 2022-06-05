@@ -8,6 +8,7 @@ use App\Models\Kas_toko;
 use App\Models\Payment;
 use App\Models\Bank;
 use App\Models\SaldoKeluar;
+use Carbon\Carbon;
 
 use Auth;
 use DataTables;
@@ -54,7 +55,7 @@ class EWalletController extends Controller
                     return $row->payment->name;
                 })
                 ->editColumn('created_at', function ($row) {
-                    return Carbon::parse($row->created_at)->translatedFormat('Y-m-d');
+                    return Carbon::parse($row->created_at)->translatedFormat('d M Y');
                 })
                 ->editColumn('created_by', function($row){
                     return $row->userCreate->name;

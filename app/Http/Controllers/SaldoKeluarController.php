@@ -43,7 +43,7 @@ class SaldoKeluarController extends Controller
                     return $row->kas->bank_uuid;
                 })
                 ->editColumn('created_at',function($row){
-                    return Carbon::parse($row->created_at)->format('j F Y');
+                    return Carbon::parse($row->created_at)->format('d M Y');
                 })
                 ->editColumn('created_by', function($row){
                     return $row->userCreate->name;
@@ -71,7 +71,7 @@ class SaldoKeluarController extends Controller
                     return $row->kas->bank_uuid;
                 })
                 ->editColumn('created_at',function($row){
-                    return Carbon::parse($row->created_at)->format('j F Y');
+                    return Carbon::parse($row->created_at)->format('d M Y');
                 })
                 ->editColumn('created_by', function($row){
                     return $row->userCreate->name;

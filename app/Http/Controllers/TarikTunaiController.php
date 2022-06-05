@@ -7,6 +7,7 @@ use App\Models\TarikTunai;
 use App\Models\Bank;
 use App\Models\Kas_toko;
 use App\Models\Saldokeluar;
+use Carbon\Carbon;
 
 use Auth;
 use DataTables;
@@ -84,6 +85,9 @@ class TarikTunaiController extends Controller
                 })
                 ->editColumn('jenis_pembayaran', function($row){
                     return $row->kas->bank_uuid;
+                })
+                ->editColumn('created_at', function ($row) {
+                    return Carbon::parse($row->created_at)->translatedFormat('d M Y');
                 })
                 ->editColumn('created_by', function($row){
                     return $row->userCreate->name;
