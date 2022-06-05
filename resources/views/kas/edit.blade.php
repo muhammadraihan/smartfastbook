@@ -56,7 +56,7 @@
                     </div> 
                     <div class="form-group col-md-4 mb-3">
                         {{ Form::label('nama_rek','Nama Rekening',['class' => 'required form-label'])}}
-                        {{ Form::text('nama_rek',$kas->nama_rek,['placeholder' => 'Nama Rekening', 'id' => 'nama', 'name' => 'nama', 'class' => 'form-control '.($errors->has('nama_rek') ? 'is-invalid':''),'required', 'autocomplete' => 'off', 'readonly'])}}
+                        {{ Form::text('nama_rek',$kas->nama_rek,['placeholder' => 'Nama Rekening', 'id' => 'nama', 'name' => 'nama', 'class' => 'form-control '.($errors->has('nama_rek') ? 'is-invalid':''),'required', 'autocomplete' => 'off'])}}
                         @if ($errors->has('nama_rek'))
                         <div class="invalid-feedback">{{ $errors->first('nama_rek') }}</div>
                         @endif

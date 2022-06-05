@@ -60,21 +60,21 @@
                         @endif
                     </div>
                     <div class="form-group col-md-4 mb-3">
-                        {{ Form::label('payment_methode','Payment Methode',['class' => 'required form-label'])}}
-                        {!! Form::select('payment_methode', array('0' => 'Tunai', '1' => 'Bank'), '',
-                        ['id' => 'payment', 'class' => 'payment form-control'.($errors->has('payment_methode') ? 'is-invalid':''), 'required'
-                        => '', 'placeholder' => 'Pilih Payment Methode ...']) !!}
-                        @if ($errors->has('payment_methode'))
-                        <div class="help-block text-danger">{{ $errors->first('payment_methode') }}</div>
-                        @endif
-                    </div>  
-                    <div id="bank" class="form-group col-md-4 mb-3" hidden>
-                        {{ Form::label('bank_uuid','Dari Bank',['class' => 'required form-label'])}}
+                        {{ Form::label('bank_uuid','Jenis Pembayaran',['class' => 'required form-label'])}}
                         {!! Form::select('bank_uuid', $bank, '', ['id' =>
                         'bank','class' =>
                         'bank form-control'.($errors->has('bank_uuid') ? 'is-invalid':''), 'required'
-                        => '', 'placeholder' => 'Pilih Bank']) !!} @if ($errors->has('bank_uuid'))
+                        => '', 'placeholder' => 'Pilih Jenis Pembayaran']) !!} @if ($errors->has('bank_uuid'))
                         <div class="help-block text-danger">{{ $errors->first('bank_uuid') }}</div>
+                        @endif
+                    </div>
+                    <div class="form-group col-md-4 mb-3">
+                        {{ Form::label('jenis_pembayaran','Jenis Kas',['class' => 'required form-label'])}}
+                        {!! Form::select('jenis_pembayaran', $kas, '', ['id' =>
+                        'kas','class' =>
+                        'kas form-control'.($errors->has('jenis_pembayaran') ? 'is-invalid':''), 'required'
+                        => '', 'placeholder' => 'Pilih Jenis Kas']) !!} @if ($errors->has('jenis_pembayaran'))
+                        <div class="help-block text-danger">{{ $errors->first('jenis_pembayaran') }}</div>
                         @endif
                     </div>
                     <div class="form-group col-md-4 mb-3">
@@ -136,6 +136,7 @@
         
         $('.ewallet').select2();
         $('.payment').select2();
+        $('.kas').select2();
         $('.bank').select2();
         $('#room_type').select2();
         $(':input').inputmask();

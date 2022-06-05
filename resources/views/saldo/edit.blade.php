@@ -1,6 +1,6 @@
 @extends('layouts.page')
 
-@section('title', 'Tarik Tunai Edit')
+@section('title', 'Saldo Edit')
 
 @section('css')
 <link rel="stylesheet" media="screen, print" href="{{asset('css/formplugins/select2/select2.bundle.css')}}">
@@ -11,9 +11,9 @@
     <div class="col-xl-6">
         <div id="panel-1" class="panel">
             <div class="panel-hdr">
-            <h2>Edit <span class="fw-300"><i>{{$tariktunai->customer}}</i></span></h2>
+            <h2>Edit <span class="fw-300"><i>{{$saldo->kas_uuid}}</i></span></h2>
                 <div class="panel-toolbar">
-                    <a class="nav-link active" href="{{route('tariktunai.index')}}"><i class="fal fa-arrow-alt-left">
+                    <a class="nav-link active" href="{{route('saldo.index')}}"><i class="fal fa-arrow-alt-left">
                         </i>
                         <span class="nav-link-text">Back</span>
                     </a>
@@ -26,45 +26,17 @@
                     <div class="panel-tag">
                         Form with <code>*</code> can not be empty.
                     </div>
-                    {!! Form::open(['route' => ['tariktunai.update',$tariktunai->uuid],'method' => 'PUT','class' =>
+                    {!! Form::open(['route' => ['saldo.update',$saldo->uuid],'method' => 'PUT','class' =>
                     'needs-validation','novalidate', 'enctype' => 'multipart/form-data']) !!}
                     <div class="form-group col-md-3 mb-3">
-                        {{ Form::label('customer','Nama Customer',['class' => 'required form-label'])}}
-                        {{ Form::text('customer',$tariktunai->customer,['placeholder' => 'Name Customer','class' => 'form-control '.($errors->has('customer') ? 'is-invalid':''),'required', 'autocomplete' => 'off'])}}
-                        @if ($errors->has('customer'))
-                        <div class="invalid-feedback">{{ $errors->first('customer') }}</div>
+                        {{ Form::label('kas_uuid','Dari Kas',['class' => 'required form-label'])}}
+                        {!! Form::select('kas_uuid', $kas, $saldo->kas_uuid, ['id' =>
+                        'kas','class' =>
+                        'kas form-control'.($errors->has('kas_uuid') ? 'is-invalid':''), 'required'
+                        => '', 'placeholder' => 'Pilih Kas']) !!} @if ($errors->has('kas_uuid'))
+                        <div class="help-block text-danger">{{ $errors->first('kas_uuid') }}</div>
                         @endif
-                    </div>     
-                    <div class="form-group col-md-3 mb-3">
-                        {{ Form::label('bank_uuid','Dari Bank',['class' => 'required form-label'])}}
-                        {!! Form::select('bank_uuid', $bank, $tariktunai->bank_uuid, ['id' =>
-                        'bank','class' =>
-                        'bank form-control'.($errors->has('bank_uuid') ? 'is-invalid':''), 'required'
-                        => '', 'placeholder' => 'Pilih Bank']) !!} @if ($errors->has('bank_uuid'))
-                        <div class="help-block text-danger">{{ $errors->first('bank_uuid') }}</div>
-                        @endif
-                    </div>
-                    <div class="form-group col-md-3 mb-3">
-                        {{ Form::label('no_kartu','No Kartu',['class' => 'required form-label'])}}
-                        {{ Form::text('no_kartu',$tariktunai->no_kartu,['placeholder' => 'No Kartu','class' => 'form-control '.($errors->has('no_kartu') ? 'is-invalid':''),'required', 'autocomplete' => 'off'])}}
-                        @if ($errors->has('no_kartu'))
-                        <div class="invalid-feedback">{{ $errors->first('no_kartu') }}</div>
-                        @endif
-                    </div>  
-                    <div class="form-group col-md-4 mb-3">
-                        {{ Form::label('biaya_admin','Biaya Admin',['class' => 'required form-label'])}}
-                        <div class="input-group">
-                                <div class="input-group-append">
-                                    <span class="input-group-text">
-                                        Rp.
-                                    </span>
-                                </div>
-                        {{ Form::text('biaya_admin',$tariktunai->biaya_admin,['placeholder' => '','class' => 'form-control '.($errors->has('biaya_admin') ? 'is-invalid':''),'required', 'autocomplete' => 'off', 'data-inputmask' => "'alias': 'currency','prefix': ''"])}}
-                        @if ($errors->has('biaya_admin'))
-                        <div class="invalid-feedback">{{ $errors->first('biaya_admin') }}</div>
-                        @endif
-                        </div>
-                    </div>                  
+                    </div>              
                     <div class="form-group col-md-4 mb-3">
                         {{ Form::label('nominal','Nominal',['class' => 'required form-label'])}}
                         <div class="input-group">
@@ -73,24 +45,15 @@
                                         Rp.
                                     </span>
                                 </div>
-                        {{ Form::text('nominal',$tariktunai->nominal,['placeholder' => '','class' => 'form-control '.($errors->has('nominal') ? 'is-invalid':''),'required', 'autocomplete' => 'off', 'data-inputmask' => "'alias': 'currency','prefix': ''"])}}
+                        {{ Form::text('nominal',$saldo->nominal,['placeholder' => '','class' => 'form-control '.($errors->has('nominal') ? 'is-invalid':''),'required', 'autocomplete' => 'off', 'data-inputmask' => "'alias': 'currency','prefix': ''"])}}
                         @if ($errors->has('nominal'))
                         <div class="invalid-feedback">{{ $errors->first('nominal') }}</div>
                         @endif
                         </div>
                     </div>
                     <div class="form-group col-md-3 mb-3">
-                        {{ Form::label('jenis_pembayaran','Pembayaran Menggunakan',['class' => 'required form-label'])}}
-                        {!! Form::select('jenis_pembayaran', $kas, $tariktunai->jenis_pembayaran, ['id' =>
-                        'kas','class' =>
-                        'kas form-control'.($errors->has('jenis_pembayaran') ? 'is-invalid':''), 'required'
-                        => '', 'placeholder' => 'Pilih Pembayaran Menggunakan']) !!} @if ($errors->has('jenis_pembayaran'))
-                        <div class="help-block text-danger">{{ $errors->first('jenis_pembayaran') }}</div>
-                        @endif
-                    </div>
-                    <div class="form-group col-md-3 mb-3">
                         {{ Form::label('keterangan','Keterangan',['class' => 'required form-label'])}}
-                        {{ Form::text('keterangan',$tariktunai->keterangan,['placeholder' => 'Keterangan','class' => 'form-control '.($errors->has('keterangan') ? 'is-invalid':''),'required', 'autocomplete' => 'off'])}}
+                        {{ Form::text('keterangan',$saldo->keterangan,['placeholder' => 'Keterangan','class' => 'form-control '.($errors->has('keterangan') ? 'is-invalid':''),'required', 'autocomplete' => 'off'])}}
                         @if ($errors->has('keterangan'))
                         <div class="invalid-feedback">{{ $errors->first('keterangan') }}</div>
                         @endif
@@ -117,7 +80,8 @@
           }
         });
         
-        $('.bank').select2();
+        $('.tujuan').select2();
+        $('.kas').select2();
         $('#room_type').select2();
         $(':input').inputmask();
 

@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Bank;
 use App\Models\Transaksi;
+use App\Models\SaldoKeluar;
+use App\Models\Kas_toko;
+use App\Models\Rekening;
 use Carbon\Carbon;
 
 use Auth;
@@ -27,8 +30,45 @@ class TransaksiController extends Controller
      */
     public function index()
     {
-        $transaksi = Transaksi::all();
         if (request()->ajax()) {
+            $transaksi = Transaksi::all();
+            $user = Auth::user();
+            $roles = $user->getRoleNames();
+            if($roles[0] == "kasir"){
+                $data = Transaksi::get();
+
+            return Datatables::of($data)
+                ->addIndexColumn()
+                ->editColumn('nominal', function($row){
+                    return $row->nominal ? 'Rp.'.' '.number_format($row->nominal,2) : '';
+                })
+                ->editColumn('biaya_admin', function($row){
+                    return $row->biaya_admin ? 'Rp.'.' '.number_format($row->biaya_admin,2) : '';
+                })
+                ->editColumn('admin_bank', function($row){
+                    return $row->admin_bank ? 'Rp.'.' '.number_format($row->admin_bank,2) : '';
+                })
+                ->editColumn('created_at',function($row){
+                    return Carbon::parse($row->created_at)->format('j F Y');
+                })
+                ->editColumn('bank_uuid', function($row){
+                    return $row->kas->bank_uuid;
+                })
+                
+                ->editColumn('created_by', function($row){
+                    return $row->userCreate->name;
+                })
+                ->editColumn('edited_by', function($row){
+                    return $row->userEdit->name ?? null;
+                })
+                ->addColumn('action', function ($row) {
+                    ;
+                })
+                ->removeColumn('id')
+                ->removeColumn('uuid')
+                ->rawColumns(['action'])
+                ->make(true);
+            }
             $data = Transaksi::get();
 
             return Datatables::of($data)
@@ -45,6 +85,10 @@ class TransaksiController extends Controller
                 ->editColumn('created_at',function($row){
                     return Carbon::parse($row->created_at)->format('j F Y');
                 })
+                ->editColumn('bank_uuid', function($row){
+                    return $row->kas->bank_uuid;
+                })
+                
                 ->editColumn('created_by', function($row){
                     return $row->userCreate->name;
                 })
@@ -73,7 +117,7 @@ class TransaksiController extends Controller
     public function create()
     {
         $tujuan = Bank::all()->pluck('name', 'name');
-        $bank = Bank::all()->pluck('name', 'name');
+        $bank = Kas_toko::all()->pluck('bank_uuid', 'uuid');
 
         return view('transaksi.create', compact('tujuan', 'bank'));
     }
@@ -152,6 +196,20 @@ class TransaksiController extends Controller
 
         $transaksi->save();
 
+        $saldokeluar = new SaldoKeluar();
+        $saldokeluar->jenis_transaksi = 'Transfer';
+        $saldokeluar->no_ref = $transaksi->no_ref;
+        $saldokeluar->customer = $transaksi->customer;
+        $saldokeluar->kas_uuid = $transaksi->bank_uuid;
+        $saldokeluar->nominal = $transaksi->nominal;
+        $saldokeluar->created_by = Auth::user()->uuid;
+
+        $kasDB = DB::table('kas_tokos')->where('uuid', 'like', $transaksi->bank_uuid)->value('saldo');
+        $kasDB = $kasDB - $transaksi->nominal;
+        $kasTotal = DB::table('kas_tokos')->where('uuid', 'like', $transaksi->bank_uuid)->update(['saldo' => $kasDB]);
+
+        $saldokeluar->save();
+
         toastr()->success('New Transaksi Added', 'Success');
         return redirect()->route('transaksi.index');
     }
@@ -177,7 +235,7 @@ class TransaksiController extends Controller
     {
         $transaksi = Transaksi::uuid($id);
         $tujuan = Bank::all()->pluck('name', 'name');
-        $bank = Bank::all()->pluck('name', 'name');
+        $bank = Kas_toko::all()->pluck('bank_uuid', 'uuid');
 
         return view('transaksi.edit', compact('transaksi', 'tujuan', 'bank'));
     }
@@ -223,6 +281,13 @@ class TransaksiController extends Controller
         $uniqueCode = Helper::GenerateReportNumber(13);
 
         $transaksi = Transaksi::uuid($id);
+
+        $kasDB = DB::table('kas_tokos')->where('uuid', 'like', $transaksi->bank_uuid)->value('saldo');
+        $kasDB = $kasDB + $transaksi->nominal;
+        $kasTotal = DB::table('kas_tokos')->where('uuid', 'like', $transaksi->bank_uuid)->update(['saldo' => $kasDB]);
+
+        $saldokeluarDB = DB::table('saldo_keluars')->where('no_ref', 'like', $transaksi->no_ref)->delete();
+
         $transaksi->no_ref = 'TRK' . '-' . $uniqueCode;
         $transaksi->customer = $request->customer;
         $transaksi->bank_tujuan = $request->bank_tujuan;
@@ -237,6 +302,20 @@ class TransaksiController extends Controller
 
         $transaksi->save();
 
+        $saldokeluar = new SaldoKeluar();
+        $saldokeluar->jenis_transaksi = 'Transfer';
+        $saldokeluar->no_ref = $transaksi->no_ref;
+        $saldokeluar->customer = $transaksi->customer;
+        $saldokeluar->kas_uuid = $transaksi->bank_uuid;
+        $saldokeluar->nominal = $transaksi->nominal;
+        $saldokeluar->created_by = Auth::user()->uuid;
+
+        $kasDB = DB::table('kas_tokos')->where('uuid', 'like', $transaksi->bank_uuid)->value('saldo');
+        $kasDB = $kasDB - $transaksi->nominal;
+        $kasTotal = DB::table('kas_tokos')->where('uuid', 'like', $transaksi->bank_uuid)->update(['saldo' => $kasDB]);
+
+        $saldokeluar->save();
+
         toastr()->success('Transaksi Edited', 'Success');
         return redirect()->route('transaksi.index');
     }
@@ -250,6 +329,11 @@ class TransaksiController extends Controller
     public function destroy($id)
     {
         $transaksi = Transaksi::uuid($id);
+        $kasDB = DB::table('kas_tokos')->where('uuid', 'like', $transaksi->bank_uuid)->value('saldo');
+        $kasDB = $kasDB + $transaksi->nominal;
+        $kasTotal = DB::table('kas_tokos')->where('uuid', 'like', $transaksi->bank_uuid)->update(['saldo' => $kasDB]);
+
+        $saldokeluarDB = DB::table('saldo_keluars')->where('no_ref', 'like', $transaksi->no_ref)->delete();
         $transaksi->delete();
 
         toastr()->success('Transaksi Deleted', 'Success');

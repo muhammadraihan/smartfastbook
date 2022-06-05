@@ -44,7 +44,9 @@
                 <th>No Kartu</th>
                 <th>Biaya Admin</th>
                 <th>Nominal</th>
+                <th>Jenis Pembayaran</th>
                 <th>Keterangan</th>
+                <th>Created At</th>
                 <th>Created By</th>
                 <th>Edited By</th>
                 <th width="120px">Action</th>
@@ -118,7 +120,9 @@
             {data: 'no_kartu', name: 'no_kartu'},
             {data: 'biaya_admin', name: 'biaya_admin'},
             {data: 'nominal', name: 'nominal'},
+            {data: 'jenis_pembayaran', name: 'jenis_pembayaran'},
             {data: 'keterangan', name: 'keterangan'},
+            {data: 'created_at', name: 'created_at'},
             {data: 'created_by', name: 'created_by'},
             {data: 'edited_by', name: 'edited_by'},
             {data: 'action', name: 'action', orderable: false, searchable: false},

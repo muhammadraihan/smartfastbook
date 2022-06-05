@@ -1,17 +1,21 @@
 @extends('layouts.page')
 
-@section('title', 'Kas Management')
+@section('title', 'Saldo Keluar Management')
 
 @section('css')
+<link rel="stylesheet" media="screen, print" href="{{asset('css/formplugins/select2/select2.bundle.css')}}">
 <link rel="stylesheet" media="screen, print" href="{{asset('css/datagrid/datatables/datatables.bundle.css')}}">
+<link rel="stylesheet" media="screen, print" href="{{asset('css/formplugins/bootstrap-datepicker/bootstrap-datepicker.css')}}">
+<link rel="stylesheet" media="screen, print" href="https://cdn.datatables.net/1.12.0/css/jquery.dataTables.min.css">
+<link rel="stylesheet" media="screen, print" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.dataTables.min.css">
 @endsection
 
 @section('content')
 <div class="subheader">
     <h1 class="subheader-title">
-        <i class='subheader-icon fal fa-users'></i> Module: <span class='fw-300'>Kas </span>
+        <i class='subheader-icon fal fa-users'></i> Module: <span class='fw-300'>Saldo Keluar</span>
         <small>
-            Module for manage Kas .
+            Module for manage Saldo Keluar.
         </small>
     </h1>
 </div>
@@ -20,29 +24,26 @@
         <div id="panel-1" class="panel">
             <div class="panel-hdr">
             <h2>
-                    Kas  <span class="fw-300"><i>List</i></span>
+                    Saldo Keluar<span class="fw-300"><i>List</i></span>
                 </h2>
                 <div class="panel-toolbar">
-                    <a class="nav-link active" href="{{route('kas.create')}}"><i class="fal fa-plus-circle">
-                        </i>
-                        <span class="nav-link-text">Add New</span>
-                    </a>
                     <button class="btn btn-panel" data-action="panel-fullscreen" data-toggle="tooltip"
                         data-offset="0,10" data-original-title="Fullscreen"></button>
                 </div>
             </div>
             <div class="panel-container show">
-                <div class="panel-content">
-                    <!-- datatable start -->
-                    <table id="datatable" class="table table-bordered table-hover table-striped w-100">
+            <div class="panel-content">
+                <!-- datatable start -->
+                <table id="datatable" class="table table-bordered table-hover table-striped w-100">
         <thead>
             <tr>
                 <th>No</th>
-                <th>Nama Bank</th>
-                <th>Nama User</th>
-                <th>No Rekening</th>
-                <th>Nama Rekening</th>
-                <th>Saldo</th>
+                <th>Tanggal Transaksi</th>
+                <th>Jenis Transaksi</th>
+                <th>No Referensi</th>
+                <th>Customer</th>
+                <th>Kas</th>
+                <th>Nominal</th>
                 <th>Created At</th>
                 <th>Created By</th>
                 <th>Edited By</th>
@@ -87,6 +88,13 @@
 
 @section('js')
 <script src="{{asset('js/datagrid/datatables/datatables.bundle.js')}}"></script>
+<script src="{{asset('js/formplugins/select2/select2.bundle.js')}}"></script>
+<script src="{{asset('js/formplugins/bootstrap-datepicker/bootstrap-datepicker.js')}}"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.print.min.js"></script>
 <script>
     $(document).ready(function(){
         $.ajaxSetup({
@@ -95,31 +103,35 @@
           }
     });
      
-     
        var table = $('#datatable').DataTable({
             "processing": true,
             "serverSide": true,
             "responsive": true,
             "order": [[ 0, "asc" ]],
             "ajax":{
-                url:'{{route('kas.index')}}',
+                url:'{{route('saldoKeluar.index')}}',
                 type : "GET",
                 dataType: 'json',
                 error: function(data){
                     console.log(data);
                     }
             },
+            "dom": 'Bfrtip',
+            "buttons": [
+                'excel', 'print'
+            ],
             "columns": [
-            {data: 'DT_RowIndex', name: 'DT_RowIndex'},
-            {data: 'bank_uuid', name: 'bank_uuid'},
-            {data: 'name', name: 'name'},
-            {data: 'no_rek', name: 'no_rek'},
-            {data: 'nama_rek', name: 'nama_rek'},
-            {data: 'saldo', name: 'saldo'},
-            {data: 'created_at', name: 'created_at'},
-            {data: 'created_by', name: 'created_by'},
-            {data: 'edited_by', name: 'edited_by'},
-            {data: 'action', name: 'action', orderable: false, searchable: false},
+                {data: 'DT_RowIndex', name: 'DT_RowIndex'},
+                {data: 'created_at', name: 'created_at'},
+                {data: 'jenis_transaksi', name: 'jenis_transaksi'},
+                {data: 'no_ref', name: 'no_ref'},
+                {data: 'customer', name: 'no_ref'},
+                {data: 'kas_uuid', name: 'kas_uuid'},
+                {data: 'nominal', name: 'nominal'},
+                {data: 'created_at', name: 'created_at'},
+                {data: 'created_by', name: 'created_by'},
+                {data: 'edited_by', name: 'edited_by'},
+                {data: 'action',width:'10%',searchable:false}  
         ]
     });
     // Delete Data

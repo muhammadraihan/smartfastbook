@@ -16,12 +16,8 @@
         Hi {{Auth::user()->name}},
     </h3>
     <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-        magna aliqua. Faucibus interdum posuere lorem ipsum dolor sit amet. Venenatis urna cursus eget nunc scelerisque
-        viverra mauris. At in tellus integer feugiat scelerisque. Eu sem integer vitae justo eget magna. Volutpat
-        blandit aliquam etiam erat velit scelerisque in. Amet luctus venenatis lectus magna fringilla. Non tellus orci
-        ac auctor augue mauris. Egestas fringilla phasellus faucibus scelerisque eleifend donec. Elit duis tristique
-        sollicitudin nibh sit amet.
+        SmartFastBook adalah sebuah aplikasi akuntansi yang dapat membantu anda dalam merekap setiap transaksi di outlet anda ! 
+        SmartFastBook hadir dengan beberapa fitur yang dapat mempermudah anda. silahkan menikmati fitur dari aplikasi kami!
     </p>
     <p>
         Sincerely,<br>

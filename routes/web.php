@@ -46,6 +46,12 @@ Route::group(['prefix' => 'backoffice', 'middleware' => ['auth']], function () {
     Route::resource('tariktunai', 'TarikTunaiController');
     Route::resource('payment', 'PaymentController');
     Route::resource('ewallet', 'EWalletController');
+    Route::resource('saldo', 'SaldoController');
+    Route::resource('saldoKeluar', 'SaldoKeluarController');
+    Route::resource('perusahaan', 'PerusahaanController');
+    Route::resource('rekening', 'RekeningController');
     Route::get('getPayment', 'EWalletController@GetPayment')->name('getPayment');
+    Route::get('filter', 'SaldoController@filter')->name('get.filter');
     Route::POST('search', 'KasController@cekrekening')->name('get.cekrekening');
+    Route::get('invoice', 'InvoiceController@print')->name('print');
 });

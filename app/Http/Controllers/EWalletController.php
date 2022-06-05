@@ -3,15 +3,22 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\EWallet;
-use App\Models\Bank;
+use App\Models\Ewallet;
+use App\Models\Kas_toko;
 use App\Models\Payment;
+use App\Models\Bank;
+use App\Models\SaldoKeluar;
 
 use Auth;
 use DataTables;
-use URL;
-use Helper;
+use DB;
+use File;
+use Hash;
 use Image;
+use Response;
+use URL;
+use PDF;
+use Helper;
 
 class EWalletController extends Controller
 {
@@ -22,9 +29,12 @@ class EWalletController extends Controller
      */
     public function index()
     {
-        $ewallet = EWallet::all();
         if (request()->ajax()) {
-            $data = EWallet::get();
+            $user = Auth::user();
+            $roles = $user->getRoleNames();
+            $ewallet = Ewallet::all();
+            if($roles[0] == "kasir"){
+                $data = Ewallet::get();
 
             return Datatables::of($data)
                 ->addIndexColumn()
@@ -37,18 +47,47 @@ class EWalletController extends Controller
                 ->editColumn('bank_uuid', function($row){
                     return $row->bank->name ?? null;
                 })
+                ->editColumn('jenis_pembayaran', function($row){
+                    return $row->kas->bank_uuid;
+                })
                 ->editColumn('ewallet', function($row){
                     return $row->payment->name;
                 })
-                ->editColumn('payment_methode', function($row){
-                    switch ($row->payment_methode) {
-                        case '0' :
-                            return '<span class="badge badge-danger">Tunai</span>';
-                            break;
-                        case '1' :
-                            return '<span class="badge badge-primary">Bank</span>';
-                            break;
-                    }
+                ->editColumn('created_at', function ($row) {
+                    return Carbon::parse($row->created_at)->translatedFormat('Y-m-d');
+                })
+                ->editColumn('created_by', function($row){
+                    return $row->userCreate->name;
+                })
+                ->editColumn('edited_by', function($row){
+                    return $row->userEdit->name ?? null;
+                })
+                ->addColumn('action', function ($row) {
+                    ;
+                })
+                ->removeColumn('id')
+                ->removeColumn('uuid')
+                ->rawColumns(['action'])
+                ->make(true);
+            }
+            $data = Ewallet::get();
+
+            return Datatables::of($data)
+                ->addIndexColumn()
+                ->editColumn('nominal', function($row){
+                    return $row->nominal ? 'Rp.'.' '.number_format($row->nominal,2) : '';
+                })
+                ->editColumn('biaya_admin', function($row){
+                    return $row->biaya_admin ? 'Rp.'.' '.number_format($row->biaya_admin,2) : '';
+                })
+                ->editColumn('bank_uuid', function($row){
+                    return $row->bank->name ?? null;
+                })
+                ->editColumn('jenis_pembayaran', function($row){
+                    return $row->kas->bank_uuid;
+                })
+                ->editColumn('ewallet', function($row){
+                    return $row->payment->name;
                 })
                 ->editColumn('created_by', function($row){
                     return $row->userCreate->name;
@@ -63,7 +102,7 @@ class EWalletController extends Controller
                 })
                 ->removeColumn('id')
                 ->removeColumn('uuid')
-                ->rawColumns(['action','payment_methode'])
+                ->rawColumns(['action'])
                 ->make(true);
         }
 
@@ -77,10 +116,11 @@ class EWalletController extends Controller
      */
     public function create()
     {
+        $kas = Kas_toko::all()->pluck('bank_uuid', 'uuid');
         $bank = Bank::all()->pluck('name', 'uuid');
         $payment = Payment::all()->pluck('name', 'uuid');
 
-        return view('ewallet.create', compact('bank', 'payment'));
+        return view('ewallet.create', compact('bank', 'payment', 'kas'));
 
     }
 
@@ -97,8 +137,8 @@ class EWalletController extends Controller
             'no_hp' => 'required',
             'pemilik' => 'required',
             'ewallet' => 'required',
-            'payment_methode' => 'required',
             'biaya_admin' => 'required',
+            'jenis_pembayaran' => 'required',
             'nominal' => 'required',
         ];
 
@@ -119,8 +159,8 @@ class EWalletController extends Controller
 
         $uniqueCode = Helper::GenerateReportNumber(13);
 
-        $ewallet = new EWallet();
-        $ewallet->no_ref = 'EWL' . '-' . $uniqueCode;
+        $ewallet = new Ewallet();
+        $ewallet->no_ref = 'E-WALLET' . '-' . $uniqueCode;
         $ewallet->customer = $request->customer;
         $ewallet->no_hp = $request->no_hp;
         $ewallet->pemilik = $request->pemilik;
@@ -129,10 +169,25 @@ class EWalletController extends Controller
         $ewallet->bank_uuid = $request->bank_uuid;
         $ewallet->biaya_admin = $formattedbiayaadmin;
         $ewallet->nominal = $formattednominal;
+        $ewallet->jenis_pembayaran = $request->jenis_pembayaran;
         $ewallet->keterangan = $request->keterangan;
         $ewallet->created_by = Auth::user()->uuid;
 
         $ewallet->save();
+
+        $saldokeluar = new SaldoKeluar();
+        $saldokeluar->jenis_transaksi = 'E-Wallet';
+        $saldokeluar->no_ref = $ewallet->no_ref;
+        $saldokeluar->customer = $ewallet->customer;
+        $saldokeluar->kas_uuid = $ewallet->jenis_pembayaran;
+        $saldokeluar->nominal = $ewallet->nominal;
+        $saldokeluar->created_by = Auth::user()->uuid;
+
+        $kasDB = DB::table('kas_tokos')->where('uuid', 'like', $ewallet->jenis_pembayaran)->value('saldo');
+        $kasDB = $kasDB - $ewallet->nominal;
+        $kasTotal = DB::table('kas_tokos')->where('uuid', 'like', $ewallet->jenis_pembayaran)->update(['saldo' => $kasDB]);
+
+        $saldokeluar->save();
 
         toastr()->success('New E-Wallet Added', 'Success');
         return redirect()->route('ewallet.index');
@@ -159,9 +214,10 @@ class EWalletController extends Controller
     {
         $bank = Bank::all()->pluck('name', 'uuid');
         $payment = Payment::all()->pluck('name', 'uuid');
-        $ewallet = EWallet::uuid($id);
+        $kas = Kas_toko::all()->pluck('bank_uuid', 'uuid');
+        $ewallet = Ewallet::uuid($id);
 
-        return view('ewallet.edit', compact('bank', 'payment', 'ewallet'));
+        return view('ewallet.edit', compact('bank', 'payment', 'ewallet', 'kas'));
     }
 
     /**
@@ -178,8 +234,8 @@ class EWalletController extends Controller
             'no_hp' => 'required',
             'pemilik' => 'required',
             'ewallet' => 'required',
-            'payment_methode' => 'required',
             'biaya_admin' => 'required',
+            'jenis_pembayaran' => 'required',
             'nominal' => 'required',
         ];
 
@@ -200,8 +256,14 @@ class EWalletController extends Controller
 
         $uniqueCode = Helper::GenerateReportNumber(13);
 
-        $ewallet = EWallet::uuid($id);
-        $ewallet->no_ref = 'EWL' . '-' . $uniqueCode;
+        $ewallet = Ewallet::uuid($id);
+
+        $kasDB = DB::table('kas_tokos')->where('uuid', 'like', $ewallet->jenis_pembayaran)->value('saldo');
+        $kasDB = $kasDB + $ewallet->nominal;
+        $kasTotal = DB::table('kas_tokos')->where('uuid', 'like', $ewallet->jenis_pembayaran)->update(['saldo' => $kasDB]);
+
+        $saldokeluarDB = DB::table('saldo_keluars')->where('no_ref', 'like', $ewallet->no_ref)->delete();
+
         $ewallet->customer = $request->customer;
         $ewallet->no_hp = $request->no_hp;
         $ewallet->pemilik = $request->pemilik;
@@ -210,10 +272,25 @@ class EWalletController extends Controller
         $ewallet->bank_uuid = $request->bank_uuid;
         $ewallet->biaya_admin = $formattedbiayaadmin;
         $ewallet->nominal = $formattednominal;
+        $ewallet->jenis_pembayaran = $request->jenis_pembayaran;
         $ewallet->keterangan = $request->keterangan;
         $ewallet->edited_by = Auth::user()->uuid;
 
         $ewallet->save();
+
+        $saldokeluar = new SaldoKeluar();
+        $saldokeluar->jenis_transaksi = 'E-Wallet';
+        $saldokeluar->no_ref = $ewallet->no_ref;
+        $saldokeluar->customer = $ewallet->customer;
+        $saldokeluar->kas_uuid = $ewallet->jenis_pembayaran;
+        $saldokeluar->nominal = $ewallet->nominal;
+        $saldokeluar->created_by = Auth::user()->uuid;
+
+        $kasDB = DB::table('kas_tokos')->where('uuid', 'like', $ewallet->jenis_pembayaran)->value('saldo');
+        $kasDB = $kasDB - $ewallet->nominal;
+        $kasTotal = DB::table('kas_tokos')->where('uuid', 'like', $ewallet->jenis_pembayaran)->update(['saldo' => $kasDB]);
+
+        $saldokeluar->save();
 
         toastr()->success('E-Wallet Edited', 'Success');
         return redirect()->route('ewallet.index');
@@ -227,7 +304,12 @@ class EWalletController extends Controller
      */
     public function destroy($id)
     {
-        $ewallet = EWallet::uuid($id);
+        $ewallet = Ewallet::uuid($id);
+        $kasDB = DB::table('kas_tokos')->where('uuid', 'like', $ewallet->jenis_pembayaran)->value('saldo');
+        $kasDB = $kasDB + $ewallet->nominal;
+        $kasTotal = DB::table('kas_tokos')->where('uuid', 'like', $ewallet->jenis_pembayaran)->update(['saldo' => $kasDB]);
+
+        $saldokeluarDB = DB::table('saldo_keluars')->where('no_ref', 'like', $ewallet->no_ref)->delete();
         $ewallet->delete();
 
         toastr()->success('E-Wallet Deleted', 'Success');

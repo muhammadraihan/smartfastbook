@@ -41,23 +41,23 @@
                         {!! Form::select('bank_tujuan', $tujuan, '', ['id' =>
                         'tujuan','class' =>
                         'tujuan form-control'.($errors->has('bank_tujuan') ? 'is-invalid':''), 'required'
-                        => '', 'placeholder' => 'Pilih Bank Tujuan']) !!} @if ($errors->has('bank_tujuan'))
+                        => '', 'placeholder' => 'Pilih Bank']) !!} @if ($errors->has('bank_tujuan'))
                         <div class="help-block text-danger">{{ $errors->first('bank_tujuan') }}</div>
                         @endif
                     </div>
                     <div class="form-group col-md-4 mb-3">
                         {{ Form::label('no_rek','No Rekening',['class' => 'required form-label'])}}
-                        {{ Form::text('no_rek',null,['placeholder' => 'No Rekening', 'id' => 'norek', 'name' => 'norek', 'class' => 'norek form-control '.($errors->has('no_rek') ? 'is-invalid':''),'required', 'autocomplete' => 'off'])}}
+                        {{ Form::text('no_rek',null,['placeholder' => 'Nomor Rekening', 'id' => 'norek', 'name' => 'norek', 'class' => 'form-control '.($errors->has('no_rek') ? 'is-invalid':''),'required', 'autocomplete' => 'off'])}}
                         @if ($errors->has('no_rek'))
                         <div class="invalid-feedback">{{ $errors->first('no_rek') }}</div>
                         @endif
                     </div>  
                     <div id="" class="form-group col-md-5 mb-3">
-                            <button type="button" name="search" id="search" class="btn btn-primary">Search</button>
+                        <button type="button" name="search" id="search" class="btn btn-primary">Search</button>
                     </div> 
                     <div class="form-group col-md-4 mb-3">
                         {{ Form::label('nama_rekening','Nama Rekening',['class' => 'required form-label'])}}
-                        {{ Form::text('nama_rekening',null,['placeholder' => 'Nama Rekening', 'id' => 'nama', 'name' => 'nama', 'class' => 'form-control '.($errors->has('nama_rekening') ? 'is-invalid':''),'required', 'autocomplete' => 'off', 'readonly'])}}
+                        {{ Form::text('nama_rekening',null,['placeholder' => 'Nama Rekening', 'id' => 'nama', 'name' => 'nama', 'class' => 'form-control '.($errors->has('nama_rekening') ? 'is-invalid':''),'required', 'autocomplete' => 'off'])}}
                         @if ($errors->has('nama_rekening'))
                         <div class="invalid-feedback">{{ $errors->first('nama_rekening') }}</div>
                         @endif
@@ -177,6 +177,7 @@
                             }
                         });               	
             });
+
             
         
         // Create a new password

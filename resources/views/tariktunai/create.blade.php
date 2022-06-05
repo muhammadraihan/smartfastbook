@@ -81,6 +81,15 @@
                         </div>
                     </div>
                     <div class="form-group col-md-3 mb-3">
+                        {{ Form::label('jenis_pembayaran','Pembayaran Menggunakan',['class' => 'required form-label'])}}
+                        {!! Form::select('jenis_pembayaran', $kas, '', ['id' =>
+                        'kas','class' =>
+                        'kas form-control'.($errors->has('jenis_pembayaran') ? 'is-invalid':''), 'required'
+                        => '', 'placeholder' => 'Pilih Pembayaran Menggunakan']) !!} @if ($errors->has('jenis_pembayaran'))
+                        <div class="help-block text-danger">{{ $errors->first('jenis_pembayaran') }}</div>
+                        @endif
+                    </div>
+                    <div class="form-group col-md-3 mb-3">
                         {{ Form::label('keterangan','Keterangan',['class' => 'required form-label'])}}
                         {{ Form::text('keterangan',null,['placeholder' => 'Keterangan','class' => 'form-control '.($errors->has('keterangan') ? 'is-invalid':''),'required', 'autocomplete' => 'off'])}}
                         @if ($errors->has('keterangan'))
@@ -110,6 +119,7 @@
         });
         
         $('.bank').select2();
+        $('.kas').select2();
         $('#room_type').select2();
         $(':input').inputmask();
 

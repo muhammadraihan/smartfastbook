@@ -12,7 +12,7 @@ class TarikTunai extends Model
     use Uuid;
 
     protected $fillable = [
-        'no_ref', 'customer', 'no_kartu', 'bank_uuid', 'biaya_admin', 'admin_bank', 'keterangan', 'nominal', 'created_by', 'edited_by'
+        'no_ref', 'customer', 'no_kartu', 'bank_uuid', 'biaya_admin', 'admin_bank', 'keterangan', 'nominal', 'created_by', 'edited_by', 'jenis_pembayaran'
     ];
 
     public function userCreate() {
@@ -21,6 +21,10 @@ class TarikTunai extends Model
 
     public function userEdit() {
         return $this->belongsTo(User::class, 'edited_by', 'uuid');
+    }
+
+    public function kas() {
+        return $this->belongsTo(Kas_toko::class, 'jenis_pembayaran', 'uuid');
     }
 
     public function bank() {

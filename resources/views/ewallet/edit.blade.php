@@ -59,15 +59,6 @@
                         @endif
                     </div>
                     <div class="form-group col-md-4 mb-3">
-                        {{ Form::label('payment_methode','Payment Methode',['class' => 'required form-label'])}}
-                        {!! Form::select('payment_methode', array('0' => 'Tunai', '1' => 'Bank'), $ewallet->payment_methode,
-                        ['id' => 'payment', 'class' => 'payment form-control'.($errors->has('payment_methode') ? 'is-invalid':''), 'required'
-                        => '', 'placeholder' => 'Pilih Payment Methode ...']) !!}
-                        @if ($errors->has('payment_methode'))
-                        <div class="help-block text-danger">{{ $errors->first('payment_methode') }}</div>
-                        @endif
-                    </div>  
-                    <div id="bank" class="form-group col-md-4 mb-3" hidden>
                         {{ Form::label('bank_uuid','Dari Bank',['class' => 'required form-label'])}}
                         {!! Form::select('bank_uuid', $bank, $ewallet->bank_uuid, ['id' =>
                         'bank','class' =>
@@ -105,6 +96,15 @@
                         </div>
                     </div>
                     <div class="form-group col-md-4 mb-3">
+                        {{ Form::label('jenis_pembayaran','Jenis Pembayaran',['class' => 'required form-label'])}}
+                        {!! Form::select('jenis_pembayaran', $kas, $ewallet->jenis_pembayaran, ['id' =>
+                        'kas','class' =>
+                        'kas form-control'.($errors->has('jenis_pembayaran') ? 'is-invalid':''), 'required'
+                        => '', 'placeholder' => 'Pilih Jenis Pembayaran']) !!} @if ($errors->has('jenis_pembayaran'))
+                        <div class="help-block text-danger">{{ $errors->first('jenis_pembayaran') }}</div>
+                        @endif
+                    </div>
+                    <div class="form-group col-md-4 mb-3">
                         {{ Form::label('keterangan','Keterangan',['class' => 'required form-label'])}}
                         {{ Form::text('keterangan',$ewallet->keterangan,['placeholder' => 'Keterangan','class' => 'form-control '.($errors->has('keterangan') ? 'is-invalid':''),'required', 'autocomplete' => 'off'])}}
                         @if ($errors->has('keterangan'))
@@ -135,6 +135,7 @@
         
         $('.ewallet').select2();
         $('.payment').select2();
+        $('.kas').select2();
         $('.bank').select2();
         $('#room_type').select2();
         $(':input').inputmask();

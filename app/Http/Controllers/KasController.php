@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Kas_toko;
 use App\Models\Bank;
+use Carbon\Carbon;
 
 use Auth;
 use DataTables;
@@ -21,8 +22,8 @@ class KasController extends Controller
      */
     public function index()
     {
-        $kas = Kas_toko::all();
         if (request()->ajax()) {
+            $kas = Kas_toko::all();
             $data = Kas_toko::get();
 
             return Datatables::of($data)
@@ -30,7 +31,9 @@ class KasController extends Controller
                 ->editColumn('saldo', function($row){
                     return $row->saldo ? 'Rp.'.' '.number_format($row->saldo,2) : '';
                 })
-                
+                ->editColumn('created_at', function ($row) {
+                    return Carbon::parse($row->created_at)->translatedFormat('Y-m-d');
+                })
                 ->editColumn('created_by', function($row){
                     return $row->userCreate->name;
                 })
@@ -95,8 +98,6 @@ class KasController extends Controller
         $rules = [
             'bank_uuid' => 'required',
             'name' => 'required',
-            'norek' => 'required',
-            'nama' => 'required',
             'saldo'=>'required',
         ];
 
@@ -163,8 +164,6 @@ class KasController extends Controller
         $rules = [
             'bank_uuid' => 'required',
             'name' => 'required',
-            'norek' => 'required',
-            'nama' => 'required',
             'saldo'=>'required',
         ];
 

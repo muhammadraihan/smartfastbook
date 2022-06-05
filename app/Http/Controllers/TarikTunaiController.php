@@ -5,12 +5,19 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\TarikTunai;
 use App\Models\Bank;
+use App\Models\Kas_toko;
+use App\Models\Saldokeluar;
 
 use Auth;
 use DataTables;
-use URL;
-use Helper;
+use DB;
+use File;
+use Hash;
 use Image;
+use Response;
+use URL;
+use PDF;
+use Helper;
 
 class TarikTunaiController extends Controller
 {
@@ -21,8 +28,44 @@ class TarikTunaiController extends Controller
      */
     public function index()
     {
-        $tariktunai = TarikTunai::all();
         if (request()->ajax()) {
+            $tariktunai = TarikTunai::all();
+            $user = Auth::user();
+            $roles = $user->getRoleNames();
+            if($roles[0] == "kasir"){
+                $data = TarikTunai::get();
+
+            return Datatables::of($data)
+                ->addIndexColumn()
+                ->editColumn('nominal', function($row){
+                    return $row->nominal ? 'Rp.'.' '.number_format($row->nominal,2) : '';
+                })
+                ->editColumn('biaya_admin', function($row){
+                    return $row->biaya_admin ? 'Rp.'.' '.number_format($row->biaya_admin,2) : '';
+                })
+                ->editColumn('admin_bank', function($row){
+                    return $row->admin_bank ? 'Rp.'.' '.number_format($row->admin_bank,2) : '';
+                })
+                ->editColumn('bank_uuid', function($row){
+                    return $row->bank->name;
+                })
+                ->editColumn('jenis_pembayaran', function($row){
+                    return $row->kas->bank_uuid;
+                })
+                ->editColumn('created_by', function($row){
+                    return $row->userCreate->name;
+                })
+                ->editColumn('edited_by', function($row){
+                    return $row->userEdit->name ?? null;
+                })
+                ->addColumn('action', function ($row) {
+                   ;
+                })
+                ->removeColumn('id')
+                ->removeColumn('uuid')
+                ->rawColumns(['action'])
+                ->make(true);
+            }
             $data = TarikTunai::get();
 
             return Datatables::of($data)
@@ -38,6 +81,9 @@ class TarikTunaiController extends Controller
                 })
                 ->editColumn('bank_uuid', function($row){
                     return $row->bank->name;
+                })
+                ->editColumn('jenis_pembayaran', function($row){
+                    return $row->kas->bank_uuid;
                 })
                 ->editColumn('created_by', function($row){
                     return $row->userCreate->name;
@@ -66,8 +112,9 @@ class TarikTunaiController extends Controller
      */
     public function create()
     {
+        $kas = Kas_toko::all()->pluck('bank_uuid', 'uuid');
         $bank = Bank::all()->pluck('name', 'uuid');
-        return view('tariktunai.create', compact('bank'));
+        return view('tariktunai.create', compact('bank','kas'));
     }
 
     /**
@@ -83,7 +130,6 @@ class TarikTunaiController extends Controller
             'no_kartu' => 'required',
             'bank_uuid' => 'required',
             'biaya_admin' => 'required',
-            'keterangan' => 'required',
             'nominal' => 'required'
 
         ];
@@ -111,10 +157,26 @@ class TarikTunaiController extends Controller
         $tariktunai->bank_uuid = $request->bank_uuid;
         $tariktunai->no_kartu = $request->no_kartu;
         $tariktunai->biaya_admin = $formattedbiayaadmin;
+        $tariktunai->jenis_pembayaran = $request->jenis_pembayaran;
         $tariktunai->keterangan = $request->keterangan;
         $tariktunai->created_by = Auth::user()->uuid;
 
         $tariktunai->save();
+
+        $saldokeluar = new SaldoKeluar();
+        $saldokeluar->jenis_transaksi = 'Tarik Tunai';
+        $saldokeluar->no_ref = $tariktunai->no_ref;
+        $saldokeluar->customer = $tariktunai->customer;
+        $saldokeluar->kas_uuid = $tariktunai->jenis_pembayaran;
+        $saldokeluar->nominal = $tariktunai->nominal;
+        $saldokeluar->created_by = Auth::user()->uuid;
+
+        $saldokeluar->save();
+
+
+        $kasDB = DB::table('kas_tokos')->where('uuid', 'like', $tariktunai->jenis_pembayaran)->value('saldo');
+        $kasDB = $kasDB - $tariktunai->nominal;
+        $kasTotal = DB::table('kas_tokos')->where('uuid', 'like', $tariktunai->jenis_pembayaran)->update(['saldo' => $kasDB]);
 
         toastr()->success('New Tarik Tunai Added', 'Success');
         return redirect()->route('tariktunai.index');
@@ -139,10 +201,12 @@ class TarikTunaiController extends Controller
      */
     public function edit($id)
     {
+        $kas = Kas_toko::all()->pluck('bank_uuid', 'uuid');
         $bank = Bank::all()->pluck('name', 'uuid');
+
         $tariktunai = TarikTunai::uuid($id);
 
-        return view('tariktunai.edit', compact('bank','tariktunai'));
+        return view('tariktunai.edit', compact('bank','tariktunai', 'kas'));
     }
 
     /**
@@ -159,7 +223,7 @@ class TarikTunaiController extends Controller
             'no_kartu' => 'required',
             'bank_uuid' => 'required',
             'biaya_admin' => 'required',
-            'keterangan' => 'required',
+            'jenis_pembayaran' => 'required',
             'nominal' => 'required'
 
         ];
@@ -181,16 +245,36 @@ class TarikTunaiController extends Controller
         $uniqueCode = Helper::GenerateReportNumber(13);
 
         $tariktunai = TarikTunai::uuid($id);
-        $tariktunai->no_ref = 'TUNAI' . '-' . $uniqueCode;
+        $kasDB = DB::table('kas_tokos')->where('uuid', 'like', $tariktunai->jenis_pembayaran)->value('saldo');
+        $kasDB = $kasDB + $tariktunai->nominal;
+        $kasTotal = DB::table('kas_tokos')->where('uuid', 'like', $tariktunai->jenis_pembayaran)->update(['saldo' => $kasDB]);
+
+        $saldokeluarDB = DB::table('saldo_keluars')->where('no_ref', 'like', $tariktunai->no_ref)->delete();
+
         $tariktunai->customer = $request->customer;
         $tariktunai->nominal = $formattednominal;
         $tariktunai->bank_uuid = $request->bank_uuid;
         $tariktunai->no_kartu = $request->no_kartu;
         $tariktunai->biaya_admin = $formattedbiayaadmin;
+        $tariktunai->jenis_pembayaran = $request->jenis_pembayaran;
         $tariktunai->keterangan = $request->keterangan;
         $tariktunai->edited_by = Auth::user()->uuid;
 
         $tariktunai->save();
+
+        $saldokeluar = new SaldoKeluar();
+        $saldokeluar->jenis_transaksi = 'Tarik Tunai';
+        $saldokeluar->no_ref = $tariktunai->no_ref;
+        $saldokeluar->customer = $tariktunai->customer;
+        $saldokeluar->kas_uuid = $tariktunai->jenis_pembayaran;
+        $saldokeluar->nominal = $tariktunai->nominal;
+        $saldokeluar->created_by = Auth::user()->uuid;
+
+        $kasDB = DB::table('kas_tokos')->where('uuid', 'like', $tariktunai->jenis_pembayaran)->value('saldo');
+        $kasDB = $kasDB - $tariktunai->nominal;
+        $kasTotal = DB::table('kas_tokos')->where('uuid', 'like', $tariktunai->jenis_pembayaran)->update(['saldo' => $kasDB]);
+
+        $saldokeluar->save();
 
         toastr()->success('Tarik Tunai Edited', 'Success');
         return redirect()->route('tariktunai.index');
@@ -205,6 +289,11 @@ class TarikTunaiController extends Controller
     public function destroy($id)
     {
         $tariktunai = TarikTunai::uuid($id);
+        $kasDB = DB::table('kas_tokos')->where('uuid', 'like', $tariktunai->jenis_pembayaran)->value('saldo');
+        $kasDB = $kasDB + $tariktunai->nominal;
+        $kasTotal = DB::table('kas_tokos')->where('uuid', 'like', $tariktunai->jenis_pembayaran)->update(['saldo' => $kasDB]);
+
+        $saldokeluarDB = DB::table('saldo_keluars')->where('no_ref', '=', $tariktunai->no_ref)->delete();
         $tariktunai->delete();
 
         toastr()->success('Tarik Tunai Deleted', 'Success');

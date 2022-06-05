@@ -6,13 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\Uuid;
 
-class Transaksi extends Model
+class SaldoKeluar extends Model
 {
     use HasFactory;
     use Uuid;
 
     protected $fillable = [
-        'no_ref', 'customer', 'bank_tujuan', 'no_rek', 'nama_rekening','bank_uuid', 'biaya_admin', 'admin_bank', 'keterangan', 'nominal', 'created_by', 'edited_by'
+        'jenis_transaksi', 'kas_uuid', 'nominal', 'created_by', 'edited_by' 
     ];
 
     public function userCreate() {
@@ -23,11 +23,7 @@ class Transaksi extends Model
         return $this->belongsTo(User::class, 'edited_by', 'uuid');
     }
 
-    public function tujuan() {
-        return $this->belongsTo(Bank::class, 'bank_tujuan', 'uuid');
-    }
-
     public function kas() {
-        return $this->belongsTo(Kas_toko::class, 'bank_uuid', 'uuid');
+        return $this->belongsTo(Kas_toko::class, 'kas_uuid', 'uuid');
     }
 }

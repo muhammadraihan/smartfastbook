@@ -35,46 +35,33 @@
                 </div>
             </div>
             <div class="panel-container show">
-                <div class="form-group col-md-3 mb-3">
-                    <label>Tanggal Dari</label>
-                    <input type="text" class="form-control js-bg-target" placeholder="Tanggal Dari"
-                            id="from" name="from" autocomplete="off">
-                </div>
-                <div class="form-group col-md-3 mb-3">
-                    <label>Tanggal Sampai</label>
-                    <input type="text" class="form-control js-bg-target" placeholder="Tanggal Sampai"
-                            id="to" name="to" autocomplete="off">
-                </div>
-                <div id="" class="form-group col-md-5 mb-3">
-                    <button type="button" name="filter" id="filter" class="btn btn-primary">Filter</button>
-                </div>
             <div class="panel-content">
                 <!-- datatable start -->
                 <table id="datatable" class="table table-bordered table-hover table-striped w-100">
-        <thead>
-            <tr>
-                <th>No</th>
-                <th>No Referensi</th>
-                <th>Nama Customer</th>
-                <th>Bank Tujuan</th>
-                <th>No Rekening</th>
-                <th>Nama Rekening</th>
-                <th>Dari Bank</th>
-                <th>Biaya Admin</th>
-                <th>Admin Bank</th>
-                <th>Keterangan</th>
-                <th>Nominal</th>
-                <th>Created At</th>
-                <th>Created By</th>
-                <th>Edited By</th>
-                <th width="120px">Action</th>
-                </tr>
-                        </thead>
-                    </table>
-                </div>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>No Referensi</th>
+                    <th>Nama Customer</th>
+                    <th>Bank Tujuan</th>
+                    <th>No Rekening</th>
+                    <th>Nama Rekening</th>
+                    <th>Dari Bank</th>
+                    <th>Biaya Admin</th>
+                    <th>Admin Bank</th>
+                    <th>Keterangan</th>
+                    <th>Nominal</th>
+                    <th>Created At</th>
+                    <th>Created By</th>
+                    <th>Edited By</th>
+                    <th width="120px">Action</th>
+                    </tr>
+                    </thead>
+                </table>
             </div>
         </div>
     </div>
+</div>
 </div>
 <form action="" method="POST" class="delete-form">
     {{ csrf_field() }}

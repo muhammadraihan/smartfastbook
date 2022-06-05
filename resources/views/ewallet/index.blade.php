@@ -43,11 +43,12 @@
                 <th>No HP</th>
                 <th>Pemilik</th>
                 <th>Jenis E-Wallet</th>
-                <th>Payment Methode</th>
                 <th>Dari Bank</th>
                 <th>Biaya Admin</th>
                 <th>Nominal</th>
+                <th>Jenis Pembayaran</th>
                 <th>Keterangan</th>
+                <th>Created At</th>
                 <th>Created By</th>
                 <th>Edited By</th>
                 <th width="120px">Action</th>
@@ -120,10 +121,11 @@
             {data: 'no_hp', name: 'no_hp'},
             {data: 'pemilik', name: 'pemilik'},
             {data: 'ewallet', name: 'ewallet'},
-            {data: 'payment_methode', name: 'payment_methode'},
             {data: 'bank_uuid', name: 'bank_uuid'},
             {data: 'biaya_admin', name: 'biaya_admin'},
             {data: 'nominal', name: 'nominal'},
+            {data: 'jenis_pembayaran', name: 'jenis_pembayaran'},
+            {data: 'created_at', name:'created_at'},
             {data: 'keterangan', name: 'keterangan'},
             {data: 'created_by', name: 'created_by'},
             {data: 'edited_by', name: 'edited_by'},

@@ -1,6 +1,6 @@
 @extends('layouts.page')
 
-@section('title', 'Kas Create')
+@section('title', 'Rekening Create')
 
 @section('css')
 <link rel="stylesheet" media="screen, print" href="{{asset('css/formplugins/select2/select2.bundle.css')}}">
@@ -12,9 +12,9 @@
     <div class="col-xl-6">
         <div id="panel-1" class="panel">
             <div class="panel-hdr">
-                <h2>Add New <span class="fw-300"><i>Kas </i></span></h2>
+                <h2>Add New <span class="fw-300"><i>Rekening </i></span></h2>
                 <div class="panel-toolbar">
-                    <a class="nav-link active" href="{{route('kas.index')}}"><i class="fal fa-arrow-alt-left">
+                    <a class="nav-link active" href="{{route('rekening.index')}}"><i class="fal fa-arrow-alt-left">
                         </i>
                         <span class="nav-link-text">Back</span>
                     </a>
@@ -27,57 +27,31 @@
                     <div class="panel-tag">
                         Form with <code>*</code> can not be empty.
                     </div>
-                    {!! Form::open(['route' => 'kas.store','method' => 'POST','class' =>
+                    {!! Form::open(['route' => 'rekening.store','method' => 'POST','class' =>
                     'needs-validation','novalidate', 'enctype' => 'multipart/form-data']) !!}
                     <div class="form-group col-md-3 mb-3">
                         {{ Form::label('bank_uuid','Nama Bank',['class' => 'required form-label'])}}
-                        {!! Form::select('bank_uuid', $bank, '', ['id' =>
-                        'bank','class' =>
-                        'bank form-control'.($errors->has('bank_uuid') ? 'is-invalid':''), 'required'
-                        => '', 'placeholder' => 'Pilih Bank']) !!} @if ($errors->has('bank_uuid'))
+                        {!! Form::select('bank_uuid', $bank, '', ['class' =>
+                        'bank form-control'.($errors->has('bank') ? 'is-invalid':''), 'required'
+                        => '', 'placeholder' => 'Pilih Nama Bank']) !!} @if ($errors->has('bank_uuid'))
                         <div class="help-block text-danger">{{ $errors->first('bank_uuid') }}</div>
                         @endif
                     </div>
                     <div class="form-group col-md-4 mb-3">
-                        {{ Form::label('name','Nama User',['class' => 'required form-label'])}}
-                        {{ Form::text('name',null,['placeholder' => 'Name User','class' => 'form-control '.($errors->has('name') ? 'is-invalid':''),'required', 'autocomplete' => 'off'])}}
-                        @if ($errors->has('name'))
-                        <div class="invalid-feedback">{{ $errors->first('name') }}</div>
+                        {{ Form::label('no_rekening','No Rekening',['class' => 'required form-label'])}}
+                        {{ Form::text('no_rekening',null,['placeholder' => 'No Rekening', 'class' => 'norek form-control '.($errors->has('no_rekening') ? 'is-invalid':''),'required', 'autocomplete' => 'off'])}}
+                        @if ($errors->has('no_rekening'))
+                        <div class="invalid-feedback">{{ $errors->first('no_rekening') }}</div>
                         @endif
                     </div>  
                     <div class="form-group col-md-4 mb-3">
-                        {{ Form::label('no_rek','No Rekening',['class' => 'required form-label'])}}
-                        {{ Form::text('no_rek',null,['placeholder' => 'No Rekening', 'id' => 'norek', 'name' => 'norek', 'class' => 'norek form-control '.($errors->has('no_rek') ? 'is-invalid':''),'required', 'autocomplete' => 'off'])}}
-                        @if ($errors->has('no_rek'))
-                        <div class="invalid-feedback">{{ $errors->first('no_rek') }}</div>
+                        {{ Form::label('nama','Nama Rekening',['class' => 'required form-label'])}}
+                        {{ Form::text('nama',null,['placeholder' => 'Nama Rekening', 'class' => 'form-control '.($errors->has('nama') ? 'is-invalid':''),'required', 'autocomplete' => 'off'])}}
+                        @if ($errors->has('nama'))
+                        <div class="invalid-feedback">{{ $errors->first('nama') }}</div>
                         @endif
-                    </div>  
-                    <div id="" class="form-group col-md-5 mb-3">
-                            <button type="button" name="search" id="search" class="btn btn-primary">Search</button>
-                        </div> 
-                    <div class="form-group col-md-4 mb-3">
-                        {{ Form::label('nama_rek','Nama Rekening',['class' => 'required form-label'])}}
-                        {{ Form::text('nama_rek',null,['placeholder' => 'Nama Rekening', 'id' => 'nama', 'name' => 'nama', 'class' => 'form-control '.($errors->has('nama_rek') ? 'is-invalid':''),'required', 'autocomplete' => 'off'])}}
-                        @if ($errors->has('nama_rek'))
-                        <div class="invalid-feedback">{{ $errors->first('nama_rek') }}</div>
-                        @endif
-                    </div>                          
-                    <div class="form-group col-md-4 mb-3">
-                        {{ Form::label('saldo','Saldo',['class' => 'required form-label'])}}
-                        <div class="input-group">
-                                <div class="input-group-append">
-                                    <span class="input-group-text">
-                                        Rp.
-                                    </span>
-                                </div>
-                        {{ Form::text('saldo',null,['placeholder' => '','class' => 'form-control '.($errors->has('saldo') ? 'is-invalid':''),'required', 'autocomplete' => 'off', 'data-inputmask' => "'alias': 'currency','prefix': ''"])}}
-                        @if ($errors->has('saldo'))
-                        <div class="invalid-feedback">{{ $errors->first('saldo') }}</div>
-                        @endif
-                        </div>
-                    </div>
-                <div
-                    class="panel-content border-faded border-left-0 border-right-0 border-bottom-0 d-flex flex-row align-items-center">
+                    </div>       
+                <div class="panel-content border-faded border-left-0 border-right-0 border-bottom-0 d-flex flex-row align-items-center">
                     <button class="btn btn-primary ml-auto" type="submit">Submit</button>
                 </div>
                 {!! Form::close() !!}
@@ -98,7 +72,7 @@
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
           }
         });
-        
+
         $('.bank').select2();
         $('#room_type').select2();
         $(':input').inputmask();
@@ -106,8 +80,7 @@
            $('#search').click(function (e){
             var norek = $('#norek').val();
             // console.log(norek);
-            var bank = $('#bank').val();
-            // var b = bank.split("|");
+            var bank = $('#tujuan').val();
 
             $.ajax({
                             url:'{{route('get.cekrekening')}}',

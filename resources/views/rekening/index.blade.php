@@ -1,6 +1,6 @@
 @extends('layouts.page')
 
-@section('title', 'Kas Management')
+@section('title', 'Rekening Management')
 
 @section('css')
 <link rel="stylesheet" media="screen, print" href="{{asset('css/datagrid/datatables/datatables.bundle.css')}}">
@@ -9,9 +9,9 @@
 @section('content')
 <div class="subheader">
     <h1 class="subheader-title">
-        <i class='subheader-icon fal fa-users'></i> Module: <span class='fw-300'>Kas </span>
+        <i class='subheader-icon fal fa-users'></i> Module: <span class='fw-300'>Rekening </span>
         <small>
-            Module for manage Kas .
+            Module for manage Rekening .
         </small>
     </h1>
 </div>
@@ -20,10 +20,10 @@
         <div id="panel-1" class="panel">
             <div class="panel-hdr">
             <h2>
-                    Kas  <span class="fw-300"><i>List</i></span>
+                    Rekening  <span class="fw-300"><i>List</i></span>
                 </h2>
                 <div class="panel-toolbar">
-                    <a class="nav-link active" href="{{route('kas.create')}}"><i class="fal fa-plus-circle">
+                    <a class="nav-link active" href="{{route('rekening.create')}}"><i class="fal fa-plus-circle">
                         </i>
                         <span class="nav-link-text">Add New</span>
                     </a>
@@ -39,11 +39,8 @@
             <tr>
                 <th>No</th>
                 <th>Nama Bank</th>
-                <th>Nama User</th>
                 <th>No Rekening</th>
                 <th>Nama Rekening</th>
-                <th>Saldo</th>
-                <th>Created At</th>
                 <th>Created By</th>
                 <th>Edited By</th>
                 <th width="120px">Action</th>
@@ -102,7 +99,7 @@
             "responsive": true,
             "order": [[ 0, "asc" ]],
             "ajax":{
-                url:'{{route('kas.index')}}',
+                url:'{{route('rekening.index')}}',
                 type : "GET",
                 dataType: 'json',
                 error: function(data){
@@ -112,11 +109,8 @@
             "columns": [
             {data: 'DT_RowIndex', name: 'DT_RowIndex'},
             {data: 'bank_uuid', name: 'bank_uuid'},
-            {data: 'name', name: 'name'},
-            {data: 'no_rek', name: 'no_rek'},
-            {data: 'nama_rek', name: 'nama_rek'},
-            {data: 'saldo', name: 'saldo'},
-            {data: 'created_at', name: 'created_at'},
+            {data: 'no_rekening', name: 'no_rekening'},
+            {data: 'nama', name: 'nama'},
             {data: 'created_by', name: 'created_by'},
             {data: 'edited_by', name: 'edited_by'},
             {data: 'action', name: 'action', orderable: false, searchable: false},
@@ -135,6 +129,7 @@
             $('body').find('.delete-form').append('<input name="_method" type="hidden" value="DELETE">');
             $('body').find('.delete-form').append('<input name="id" type="hidden" value="'+ id +'">');
         });
+
         // Clear Data When Modal Close
         $('.remove-data-from-delete-form').on('click',function() {
             $('body').find('.delete-form').find("input").remove();
